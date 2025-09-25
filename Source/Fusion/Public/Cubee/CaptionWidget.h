@@ -13,5 +13,29 @@ UCLASS()
 class FUSION_API UCaptionWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	virtual bool Initialize() override;
+	
+public:
+	// UI
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Btn_Record;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Txt_Q;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Txt_A;
+
+protected:
+	// Button hover
+	bool bIsHovering = false;
+	
+	UFUNCTION()
+	void OnButtonHovered();
+
+	UFUNCTION()
+	void OnButtonUnhovered();
 	
 };
