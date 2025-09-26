@@ -37,5 +37,16 @@ protected:
 
 	UFUNCTION()
 	void OnButtonUnhovered();
+
+public:
+	// Recorder
+	UPROPERTY()
+	URecorderComponent* RecordingComponent;
+	
+	void OnRecordStart();
+	void OnRecordEnd();
+	
+	UFUNCTION(BlueprintCallable)
+	void SetRecordingComponent(URecorderComponent* InComponent);
 	
 };

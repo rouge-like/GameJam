@@ -4,6 +4,7 @@
 #include "Cubee/CaptionWidget.h"
 
 #include "Components/Button.h"
+#include "Cubee/RecorderComponent.h"
 
 bool UCaptionWidget::Initialize()
 {
@@ -23,10 +24,31 @@ void UCaptionWidget::OnButtonHovered()
 {
 	if (bIsHovering) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Hover start"));
+	OnRecordStart();
 }
 
 void UCaptionWidget::OnButtonUnhovered()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Hover end"));
+	OnRecordEnd();
+}
+
+void UCaptionWidget::OnRecordStart()
+{
+	if (RecordingComponent)
+	{
+		RecordingComponent->StartRecording();
+	}
+}
+
+void UCaptionWidget::OnRecordEnd()
+{
+	if (RecordingComponent)
+	{
+		RecordingComponent->StopRecordingAndSave(TEXT("Test"));
+	}
+}
+
+void UCaptionWidget::SetRecordingComponent(URecorderComponent* InComponent)
+{
+	RecordingComponent = InComponent;
 }
