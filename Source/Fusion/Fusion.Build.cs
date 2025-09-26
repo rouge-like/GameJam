@@ -1,6 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
-using UnrealBuildTool;
+﻿using UnrealBuildTool;
 
 public class Fusion : ModuleRules
 {
@@ -10,7 +8,7 @@ public class Fusion : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "HTTP", "Json", "JsonUtilities", "WebSockets" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
