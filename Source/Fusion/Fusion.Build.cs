@@ -1,6 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
-using UnrealBuildTool;
+﻿using UnrealBuildTool;
 
 public class Fusion : ModuleRules
 {
@@ -10,7 +8,7 @@ public class Fusion : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "AudioMixer", "HTTP", "AudioCapture" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "HTTP", "Json", "JsonUtilities", "WebSockets" });
 
 		// ModuleDirectory path로 잡도록 추가 (Rider에러 방지)
 		PublicIncludePaths.Add(ModuleDirectory);
