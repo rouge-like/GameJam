@@ -7,6 +7,19 @@
 #include "Components/TextBlock.h"
 #include "Cubee/RecorderComponent.h"
 
+void UCaptionWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (SlideOut)
+	{
+		FWidgetAnimationDynamicEvent EndEvent;
+		EndEvent.BindDynamic(this, &UCaptionWidget::HandleSlideOutFinished);
+
+		BindToAnimationFinished(SlideOut, EndEvent);
+	}
+}
+
 bool UCaptionWidget::Initialize()
 {
 	if (!Super::Initialize())
@@ -22,6 +35,9 @@ bool UCaptionWidget::Initialize()
 	CurrentText = "";
 	CurrentIndex = 0;
 
+	Txt_Q->SetVisibility(ESlateVisibility::Hidden);
+	Txt_A->SetVisibility(ESlateVisibility::Hidden);
+	
 	return true;
 }
 
@@ -35,6 +51,10 @@ void UCaptionWidget::OnButtonHovered()
 void UCaptionWidget::OnButtonUnhovered()
 {
 	OnRecordEnd();
+
+	/////////////// Test
+	ExitCaption();
+	//////////////
 }
 
 void UCaptionWidget::OnRecordStart()
@@ -102,11 +122,28 @@ void UCaptionWidget::InitializeTextBlock(UTextBlock* _TextBlock)
 
 void UCaptionWidget::EnterCaption()
 {
-	// 동물 확대되면 
+	Txt_Q->SetVisibility(ESlateVisibility::Visible);
+	Txt_A->SetVisibility(ESlateVisibility::Visible);
+	
+	if (SlideIn)
+	{
+		PlayAnimation(SlideIn);
+	}
 }
 
 void UCaptionWidget::ExitCaption()
 {
+	GetWorld()->GetTimerManager().ClearTimer(TypingTimerHandle);
+	
+	if (SlideOut)
+	{
+		PlayAnimation(SlideOut);
+	}
+}
+
+void UCaptionWidget::HandleSlideOutFinished()
+{
+	OnSlideOutFinished.Broadcast();
 }
 
 

@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "CaptionWidget.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSlideOutFinished);
+
 class URecorderComponent;
 /**
  * 
@@ -16,6 +18,8 @@ class FUSION_API UCaptionWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
+	
 	virtual bool Initialize() override;
 	
 public:
@@ -30,7 +34,7 @@ public:
 	class UTextBlock* Txt_A;
 
 protected:
-	// Button hover
+	// Hovering
 	bool bIsHovering = false;
 	
 	UFUNCTION()
@@ -57,9 +61,9 @@ public:
 	FString FullText;
 	
 protected:
-	// 지금까지 출력된 텍스트
 	bool bIsQuestion = false;
-	
+
+	// 지금까지 출력된 텍스트 & 인덱스
 	FString CurrentText;
 	int32 CurrentIndex;
 
@@ -71,9 +75,26 @@ protected:
 
 public:
 	// UI animation
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* SlideIn;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* SlideOut;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSlideOutFinished OnSlideOutFinished;
+	
 	UFUNCTION(BlueprintCallable)
 	void EnterCaption();
 
 	UFUNCTION(BlueprintCallable)
 	void ExitCaption();
+
+	UFUNCTION()
+	void HandleSlideOutFinished();
+
+protected:
+	// 맵에서 동물 클릭하면 동물 이름 받아서
+	// {참치}에 대해 알아볼까요? 이렇게 뜨게 해야 함
+	//void SetIntroductionText();
 };
