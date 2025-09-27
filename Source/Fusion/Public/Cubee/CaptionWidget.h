@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "CaptionWidget.generated.h"
 
+class URecorderComponent;
 /**
  * 
  */
@@ -49,4 +50,30 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetRecordingComponent(URecorderComponent* InComponent);
 	
+public:
+	// Print
+	// 텍스트 전문
+	UPROPERTY(EditAnywhere, Category = Text)
+	FString FullText;
+	
+protected:
+	// 지금까지 출력된 텍스트
+	bool bIsQuestion = false;
+	
+	FString CurrentText;
+	int32 CurrentIndex;
+
+	FTimerHandle TypingTimerHandle;
+
+	void PrintStart(const FString& NewText);
+	void TypeNextCharacter(UTextBlock* _TextBlock);
+	void InitializeTextBlock(UTextBlock* _TextBlock);
+
+public:
+	// UI animation
+	UFUNCTION(BlueprintCallable)
+	void EnterCaption();
+
+	UFUNCTION(BlueprintCallable)
+	void ExitCaption();
 };

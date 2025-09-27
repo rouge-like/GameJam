@@ -12,7 +12,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="389416ea-6d8a-4178-b0e3-8d8442572945" name="변경" comment="" />
+    <list default="true" id="389416ea-6d8a-4178-b0e3-8d8442572945" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fusion/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fusion/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Cubee/BP_Recorder.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Cubee/BP_Recorder.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Cubee/NewMap1.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Cubee/NewMap1.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Cubee/UI/WBP_Caption.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Cubee/UI/WBP_Caption.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/Private/Cubee/CaptionWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/Private/Cubee/CaptionWidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/Public/Cubee/CaptionWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/Public/Cubee/CaptionWidget.h" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -178,6 +185,9 @@
       <workItem from="1758855789856" duration="3211000" />
       <workItem from="1758864438363" duration="15577000" />
       <workItem from="1758894613847" duration="3864000" />
+      <workItem from="1758902583743" duration="192000" />
+      <workItem from="1758904683265" duration="175000" />
+      <workItem from="1758957038572" duration="4598000" />
     </task>
     <servers />
   </component>
