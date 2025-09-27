@@ -12,8 +12,11 @@
 #include "Misc/FileHelper.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "Dom/JsonValue.h"
 #include "WebSocketsModule.h"
 #include "IWebSocket.h"
+#include "HandViewportMapperComponent.h"
+#include "Components/Widget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFusionMode, Log, All);
 
@@ -57,6 +60,8 @@ AFusionMode::AFusionMode()
     DescribeEndpoint = TEXT("http://127.0.0.1:8000/descriptions");
     VoiceQueryEndpoint = TEXT("http://127.0.0.1:8000/voice-query");
     GestureKeepAliveInterval = 5.f;
+
+    HandViewportMapper = CreateDefaultSubobject<UHandViewportMapperComponent>(TEXT("HandViewportMapper"));
 }
 
 void AFusionMode::BeginPlay()
@@ -135,24 +140,57 @@ void AFusionMode::HandleWebSocketMessage(const FString& Message)
     LogOnScreen(ELogVerbosity::Verbose, TEXT("Gesture message received: %s"), *Message);
     OnGesturePayloadReceived.Broadcast(Message);
 
-    FFusionGestureFrame ParsedFrame;
-    if (TryParseGestureFrame(Message, ParsedFrame))
+    TSharedPtr<FJsonObject> JsonPayload;
+    const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Message);
+    if (!FJsonSerializer::Deserialize(Reader, JsonPayload) || !JsonPayload.IsValid())
     {
-        OnGestureFrameReceived.Broadcast(ParsedFrame);
+        return;
+    }
 
-        const bool bIsPointGesture = ParsedFrame.Gesture.Equals(TEXT("point"), ESearchCase::IgnoreCase) || ParsedFrame.Gesture.Equals(TEXT("select"), ESearchCase::IgnoreCase);
-        if (bIsPointGesture && !ParsedFrame.ObjectHint.IsEmpty())
-        {
-            RequestObjectDescription(ParsedFrame.ObjectHint);
-        }
+    TArray<FFusionHandSnapshot> ParsedHands;
+    PopulateHandsFromJson(JsonPayload, ParsedHands);
+    OnGestureFrameReceived.Broadcast(ParsedHands);
 
-        const bool bIsBackGesture = ParsedFrame.Gesture.Equals(TEXT("fist"), ESearchCase::IgnoreCase)
-            || ParsedFrame.Gesture.Equals(TEXT("back"), ESearchCase::IgnoreCase)
-            || ParsedFrame.Hand.Equals(TEXT("fist"), ESearchCase::IgnoreCase);
-        if (bIsBackGesture)
-        {
-            BroadcastBackToUI();
-        }
+    if (ParsedHands.Num() > 0)
+    {
+        FFusionWidgetHitResult HitResult;
+        HandViewportMapper->FindWidgetAlongDirection(ParsedHands[0],7,8,1000,HitResult);
+    }
+
+    FString ParsedGesture;
+    JsonPayload->TryGetStringField(TEXT("gesture"), ParsedGesture);
+    if (ParsedGesture.IsEmpty())
+    {
+        JsonPayload->TryGetStringField(TEXT("hand_state"), ParsedGesture);
+    }
+
+    FString ParsedHand;
+    JsonPayload->TryGetStringField(TEXT("hand"), ParsedHand);
+    if (ParsedHand.IsEmpty())
+    {
+        JsonPayload->TryGetStringField(TEXT("handedness"), ParsedHand);
+    }
+
+    FString ParsedObjectHint;
+    JsonPayload->TryGetStringField(TEXT("object_id"), ParsedObjectHint);
+    if (ParsedObjectHint.IsEmpty())
+    {
+        JsonPayload->TryGetStringField(TEXT("object_hint"), ParsedObjectHint);
+    }
+
+    const bool bIsPointGesture = ParsedGesture.Equals(TEXT("point"), ESearchCase::IgnoreCase)
+        || ParsedGesture.Equals(TEXT("select"), ESearchCase::IgnoreCase);
+    if (bIsPointGesture && !ParsedObjectHint.IsEmpty())
+    {
+        RequestObjectDescription(ParsedObjectHint);
+    }
+
+    const bool bIsBackGesture = ParsedGesture.Equals(TEXT("fist"), ESearchCase::IgnoreCase)
+        || ParsedGesture.Equals(TEXT("back"), ESearchCase::IgnoreCase)
+        || ParsedHand.Equals(TEXT("fist"), ESearchCase::IgnoreCase);
+    if (bIsBackGesture)
+    {
+        BroadcastBackToUI();
     }
 }
 
@@ -195,89 +233,71 @@ void AFusionMode::SendGestureKeepAlive()
     GestureSocket->Send(PingPayload);
 }
 
-bool AFusionMode::TryParseGestureFrame(const FString& Message, FFusionGestureFrame& OutFrame) const
+void AFusionMode::PopulateHandsFromJson(const TSharedPtr<FJsonObject>& JsonPayload, TArray<FFusionHandSnapshot>& OutHands) const
 {
-    TSharedPtr<FJsonObject> JsonPayload;
-    const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Message);
-    if (!FJsonSerializer::Deserialize(Reader, JsonPayload) || !JsonPayload.IsValid())
+    OutHands.Reset();
+
+    if (!JsonPayload.IsValid())
     {
-        return false;
+        return;
     }
 
-    OutFrame = FFusionGestureFrame();
-    OutFrame.RawJson = Message;
-
-    JsonPayload->TryGetStringField(TEXT("gesture"), OutFrame.Gesture);
-    if (OutFrame.Gesture.IsEmpty())
+    const TArray<TSharedPtr<FJsonValue>>* HandsArray = nullptr;
+    if (!JsonPayload->TryGetArrayField(TEXT("hands"), HandsArray) || HandsArray == nullptr)
     {
-        JsonPayload->TryGetStringField(TEXT("hand_state"), OutFrame.Gesture);
+        return;
     }
 
-    JsonPayload->TryGetStringField(TEXT("hand"), OutFrame.Hand);
-    if (OutFrame.Hand.IsEmpty())
+    for (const TSharedPtr<FJsonValue>& HandValue : *HandsArray)
     {
-        JsonPayload->TryGetStringField(TEXT("handedness"), OutFrame.Hand);
-    }
-
-    FString ObjectHint;
-    if (JsonPayload->TryGetStringField(TEXT("object_id"), ObjectHint) || JsonPayload->TryGetStringField(TEXT("object_hint"), ObjectHint))
-    {
-        OutFrame.ObjectHint = ObjectHint;
-    }
-
-    double ConfidenceValue = 0.0;
-    if (JsonPayload->TryGetNumberField(TEXT("confidence"), ConfidenceValue))
-    {
-        OutFrame.Confidence = static_cast<float>(ConfidenceValue);
-    }
-
-    const TSharedPtr<FJsonObject>* FingerTipObject = nullptr;
-    if (JsonPayload->TryGetObjectField(TEXT("finger_tip"), FingerTipObject) && FingerTipObject && FingerTipObject->IsValid())
-    {
-        double X = 0.0;
-        double Y = 0.0;
-        double Z = 0.0;
-        if ((*FingerTipObject)->TryGetNumberField(TEXT("x"), X) && (*FingerTipObject)->TryGetNumberField(TEXT("y"), Y) && (*FingerTipObject)->TryGetNumberField(TEXT("z"), Z))
+        const TSharedPtr<FJsonObject> HandObject = HandValue.IsValid() ? HandValue->AsObject() : nullptr;
+        if (!HandObject.IsValid())
         {
-            OutFrame.FingerTipWorld = FVector(X, Y, Z);
-            OutFrame.bHasWorldLocation = true;
+            continue;
         }
-    }
-    else if (JsonPayload->TryGetObjectField(TEXT("pointer_world"), FingerTipObject) && FingerTipObject && FingerTipObject->IsValid())
-    {
-        double X = 0.0;
-        double Y = 0.0;
-        double Z = 0.0;
-        if ((*FingerTipObject)->TryGetNumberField(TEXT("x"), X) && (*FingerTipObject)->TryGetNumberField(TEXT("y"), Y) && (*FingerTipObject)->TryGetNumberField(TEXT("z"), Z))
-        {
-            OutFrame.FingerTipWorld = FVector(X, Y, Z);
-            OutFrame.bHasWorldLocation = true;
-        }
-    }
 
-    const TSharedPtr<FJsonObject>* ScreenTipObject = nullptr;
-    if (JsonPayload->TryGetObjectField(TEXT("screen_tip"), ScreenTipObject) && ScreenTipObject && ScreenTipObject->IsValid())
-    {
-        double U = 0.0;
-        double V = 0.0;
-        if ((*ScreenTipObject)->TryGetNumberField(TEXT("x"), U) && (*ScreenTipObject)->TryGetNumberField(TEXT("y"), V))
-        {
-            OutFrame.FingerTipViewport = FVector2D(U, V);
-            OutFrame.bHasViewportLocation = true;
-        }
-    }
-    else if (JsonPayload->TryGetObjectField(TEXT("pointer_viewport"), ScreenTipObject) && ScreenTipObject && ScreenTipObject->IsValid())
-    {
-        double U = 0.0;
-        double V = 0.0;
-        if ((*ScreenTipObject)->TryGetNumberField(TEXT("x"), U) && (*ScreenTipObject)->TryGetNumberField(TEXT("y"), V))
-        {
-            OutFrame.FingerTipViewport = FVector2D(U, V);
-            OutFrame.bHasViewportLocation = true;
-        }
-    }
+        FFusionHandSnapshot HandSnapshot;
+        HandObject->TryGetStringField(TEXT("handedness"), HandSnapshot.Handedness);
 
-    return true;
+        double ScoreValue = 0.0;
+        if (HandObject->TryGetNumberField(TEXT("score"), ScoreValue))
+        {
+            HandSnapshot.Score = static_cast<float>(ScoreValue);
+        }
+
+        const TArray<TSharedPtr<FJsonValue>>* LandmarksArray = nullptr;
+        if (HandObject->TryGetArrayField(TEXT("landmarks"), LandmarksArray) && LandmarksArray)
+        {
+            HandSnapshot.Landmarks.Reserve(LandmarksArray->Num());
+            for (const TSharedPtr<FJsonValue>& LandmarkValue : *LandmarksArray)
+            {
+                const TSharedPtr<FJsonObject> LandmarkObject = LandmarkValue.IsValid() ? LandmarkValue->AsObject() : nullptr;
+                if (!LandmarkObject.IsValid())
+                {
+                    continue;
+                }
+
+                FFusionHandLandmark Landmark;
+                double IdNumber = 0.0;
+                if (LandmarkObject->TryGetNumberField(TEXT("id"), IdNumber))
+                {
+                    Landmark.Id = static_cast<int32>(IdNumber);
+                }
+
+                double X = 0.0;
+                double Y = 0.0;
+                double Z = 0.0;
+                LandmarkObject->TryGetNumberField(TEXT("x"), X);
+                LandmarkObject->TryGetNumberField(TEXT("y"), Y);
+                LandmarkObject->TryGetNumberField(TEXT("z"), Z);
+
+                Landmark.Location = FVector(static_cast<float>(X), static_cast<float>(Y), static_cast<float>(Z));
+                HandSnapshot.Landmarks.Add(MoveTemp(Landmark));
+            }
+        }
+
+        OutHands.Add(MoveTemp(HandSnapshot));
+    }
 }
 
 void AFusionMode::RequestObjectDescription(const FString& ObjectId)
