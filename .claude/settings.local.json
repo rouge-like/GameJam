@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"D:\\Project\\GameJam\\Fusion.uproject\" -projectfiles)",
+      "Bash(\"%PROGRAMFILES%\\Epic Games\\UE_5.6\\Engine\\Binaries\\DotNET\\UnrealBuildTool\\UnrealBuildTool.exe\" -projectfiles -project=\"D:\\Project\\GameJam\\Fusion.uproject\" -game -rocket -progress)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

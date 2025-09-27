@@ -1,5 +1,5 @@
-#include "CameraManager.h"
-#include "AnimalActor.h"
+#include "Huxley/CameraManager.h"
+#include "Huxley/AnimalActor.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
 
