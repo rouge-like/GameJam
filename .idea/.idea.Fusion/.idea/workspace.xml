@@ -13,13 +13,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5dc2935d-b66b-4b06-a981-bdddc429c984" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Source/Fusion/MyClass.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Fusion/MyClass.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fusion/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fusion/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/BP_FusionMode.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/BP_FusionMode.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/TEST.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/TEST.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Fusion/Fusion.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/Fusion.Build.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Fusion/FusionMode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/FusionMode.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Fusion/FusionMode.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/FusionMode.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Huxley/Input/IMC_Fusion.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Huxley/Input/IMC_Fusion.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Level0.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Level0.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/WBP_Select.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/WBP_Select.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/WBP_TEST.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/WBP_TEST.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/AnimalWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/InteractableWidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/AnimalWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/InteractableWidget.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/HandViewportMapperComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/HandViewportMapperComponent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/HandViewportMapperComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/HandViewportMapperComponent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/Private/Huxley/CameraManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/Private/Huxley/CameraManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/Private/Huxley/FusionPlayerController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/Private/Huxley/FusionPlayerController.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/Public/Huxley/FusionPlayerController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/Public/Huxley/FusionPlayerController.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,10 +44,10 @@
     <setting file="file://$PROJECT_DIR$/../../../../../Program Files/Epic Games/UE_5.6/Engine/Source/Runtime/Core/Public/UObject/WeakObjectPtrTemplates.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="33E7eKmHV87Bm9HEENxtmHWTPbb" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -156,7 +163,10 @@
       </method>
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
       <method v="2" />
     </configuration>
     <configuration name="EpicGames.Perforce.Fixture/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
@@ -179,6 +189,8 @@
       <option name="presentableId" value="Default" />
       <updated>1758870472145</updated>
       <workItem from="1758870473755" duration="15333000" />
+      <workItem from="1759027287197" duration="159000" />
+      <workItem from="1759027468811" duration="1453000" />
     </task>
     <servers />
   </component>

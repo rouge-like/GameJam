@@ -151,11 +151,11 @@ void AFusionMode::HandleWebSocketMessage(const FString& Message)
     PopulateHandsFromJson(JsonPayload, ParsedHands);
     OnGestureFrameReceived.Broadcast(ParsedHands);
 
-    if (ParsedHands.Num() > 0)
-    {
-        FFusionWidgetHitResult HitResult;
-        HandViewportMapper->FindWidgetAlongDirection(ParsedHands[0],7,8,1000,HitResult);
-    }
+    // if (ParsedHands.Num() > 0)
+    // {
+    //     FFusionWidgetHitResult HitResult;
+    //     HandViewportMapper->FindWidgetAlongDirection(ParsedHands[0],7,8,1000,HitResult);
+    // }
 
     FString ParsedGesture;
     JsonPayload->TryGetStringField(TEXT("gesture"), ParsedGesture);
