@@ -26,5 +26,5 @@ public:
 	UFUNCTION()
 	void OnSelecting(bool bIsSelecting);
 	UFUNCTION()
-	AAnimalActor* OnInteract();
+	AAnimalActor* OnInteract(bool bIsInteract);
 };

@@ -10,7 +10,7 @@ class ACameraManager;
 class UInputMappingContext;
 class UInputAction;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnMouseClicked, const FInputActionValue&, Value, ACameraManager*, CameraRef);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMouseClicked, ACameraManager*, CameraRef);
 
 UCLASS()
 class FUSION_API AFusionPlayerController : public APlayerController
@@ -19,6 +19,8 @@ class FUSION_API AFusionPlayerController : public APlayerController
 
 public:
 	AFusionPlayerController();
+
+	UPROPERTY()
 	FOnMouseClicked OnMouseClicked;
 	
 protected:
@@ -54,4 +56,5 @@ private:
 
 public:
 	void OnSelectAction();
+	void OnStopAction();
 };

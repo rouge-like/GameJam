@@ -14,12 +14,12 @@
   <component name="ChangeListManager">
     <list default="true" id="5dc2935d-b66b-4b06-a981-bdddc429c984" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fusion/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fusion/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/BP_FusionMode.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/BP_FusionMode.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Level0.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Level0.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/WBP_TEST.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/WBP_TEST.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Fusion/FusionMode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/FusionMode.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Fusion/FusionMode.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/FusionMode.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Fusion/HandViewportMapperComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/HandViewportMapperComponent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Fusion/HandViewportMapperComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/HandViewportMapperComponent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/InteractableWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/InteractableWidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Fusion/InteractableWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/InteractableWidget.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Fusion/Private/Huxley/FusionPlayerController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/Private/Huxley/FusionPlayerController.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Fusion/Public/Huxley/FusionPlayerController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Fusion/Public/Huxley/FusionPlayerController.h" afterDir="false" />
     </list>

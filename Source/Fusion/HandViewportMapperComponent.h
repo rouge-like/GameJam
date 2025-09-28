@@ -150,7 +150,7 @@ private:
 	void OnSelect(bool bIsSelecting) const;
 
 	UFUNCTION()
-	void OnClick(const FInputActionValue& Value, ACameraManager* CameraRef);
+	void OnClick(ACameraManager* CameraRef);
 	
 	FFusionWidgetHitResult WidgetHit;
 	FVector2D FingerLocation;
