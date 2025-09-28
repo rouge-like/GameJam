@@ -5,8 +5,10 @@
 #include "HAL/FileManager.h"
 #include "Http.h"
 #include "HttpModule.h"
+#include "Fusion/FusionMode.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Kismet/GameplayStatics.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Misc/ScopeLock.h"
@@ -193,12 +195,12 @@ void URecorderComponent::StopRecordingAndSave(const FString& FilePath)
 
 void URecorderComponent::UploadWavFile(const FString& FilePath)
 {
-	if (VoiceUploadEndpoint.IsEmpty())
-	{
-		UE_LOG(LogMyClass, Warning, TEXT("VoiceUploadEndpoint is not set; skipping upload."));
-		OnVoiceUploadCompleted.Broadcast(false, 0, TEXT("VoiceUploadEndpoint not configured"));
-		return;
-	}
+	// if (VoiceUploadEndpoint.IsEmpty())
+	// {
+	// 	UE_LOG(LogMyClass, Warning, TEXT("VoiceUploadEndpoint is not set; skipping upload."));
+	// 	OnVoiceUploadCompleted.Broadcast(false, 0, TEXT("VoiceUploadEndpoint not configured"));
+	// 	return;
+	// }
 
 	TArray<uint8> FileData;
 	if (!FFileHelper::LoadFileToArray(FileData, *FilePath))
@@ -210,6 +212,14 @@ void URecorderComponent::UploadWavFile(const FString& FilePath)
 
 	UE_LOG(LogMyClass, Log, TEXT("Uploading wav file (%d bytes) to %s"), FileData.Num(), *VoiceUploadEndpoint);
 
+	AGameModeBase* GM = UGameplayStatics::GetGameMode(GetWorld());
+
+	if (GM)
+	{
+		AFusionMode* FM = Cast<AFusionMode>(GM);
+		FM->SendVoiceQuery(FilePath);
+		return;
+	}
 	const TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
 	Request->SetURL(VoiceUploadEndpoint);
 	Request->SetVerb(TEXT("POST"));

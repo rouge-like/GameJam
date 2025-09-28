@@ -5,7 +5,11 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Cubee/MainWidget.h"
 #include "Cubee/RecorderComponent.h"
+#include "Fusion/FusionMode.h"
+#include "Huxley/CameraManager.h"
+#include "Kismet/GameplayStatics.h"
 
 void UCaptionWidget::NativeConstruct()
 {
@@ -18,6 +22,19 @@ void UCaptionWidget::NativeConstruct()
 
 		BindToAnimationFinished(SlideOut, EndEvent);
 	}
+
+	/*
+	AGameModeBase* GM =UGameplayStatics::GetGameMode(GetWorld());
+	if (GM)
+	{
+		AFusionMode* FM = Cast<AFusionMode>(GM);
+
+		if (FM)
+		{
+			FM->OnVoiceAnswerReceived.AddDynamic(this, &UCaptionWidget::EnterCaption);
+		}
+	}
+	*/
 }
 
 bool UCaptionWidget::Initialize()
@@ -78,15 +95,15 @@ void UCaptionWidget::SetRecordingComponent(URecorderComponent* InComponent)
 	RecordingComponent = InComponent;
 }
 
-void UCaptionWidget::PrintStart(const FString& NewText)
+void UCaptionWidget::PrintStart(UTextBlock* _TextBlock, const FString& NewText)
 {
 	FullText = NewText;
 
-	InitializeTextBlock(bIsQuestion? Txt_Q : Txt_A);
+	InitializeTextBlock(_TextBlock);
 	
 	GetWorld()->GetTimerManager().SetTimer(TypingTimerHandle, FTimerDelegate::CreateLambda([&]
 	{
-		TypeNextCharacter(bIsQuestion? Txt_Q : Txt_A);
+		TypeNextCharacter(_TextBlock);
 	}), 0.05f, true);
 }
 
@@ -120,10 +137,16 @@ void UCaptionWidget::InitializeTextBlock(UTextBlock* _TextBlock)
 	}
 }
 
-void UCaptionWidget::EnterCaption()
+void UCaptionWidget::EnterCaption(const FString& Q, const FString& A)
 {
 	Txt_Q->SetVisibility(ESlateVisibility::Visible);
 	Txt_A->SetVisibility(ESlateVisibility::Visible);
+
+	PrintStart(Txt_Q, Q);
+	PrintStart(Txt_A, A);
+	
+	//Txt_Q->SetText(FText::FromString(Q));
+	//Txt_A->SetText(FText::FromString(A));
 	
 	if (SlideIn)
 	{

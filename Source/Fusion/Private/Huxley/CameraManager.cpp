@@ -30,6 +30,8 @@ void ACameraManager::SwitchToMainCamera()
 	{
 		SetActiveCamera(MainCamera, false); // 즉시 전환
 		UE_LOG(LogTemp, Warning, TEXT("Switched to Main Camera (Immediate)"));
+
+		OnSwitchToMainCam.Broadcast();
 	}
 	else
 	{
@@ -43,6 +45,8 @@ void ACameraManager::SwitchToMainCameraSmooth()
 	{
 		SetActiveCamera(MainCamera, true, MainCameraTransitionSpeed); // 부드러운 전환
 		UE_LOG(LogTemp, Warning, TEXT("Switched to Main Camera (Smooth)"));
+
+		OnSwitchToMainCam.Broadcast();
 	}
 	else
 	{
@@ -59,6 +63,8 @@ void ACameraManager::SwitchToAnimalCamera(AAnimalActor* TargetAnimal)
 		{
 			SetActiveCamera(AnimalCamera, true, AnimalCameraTransitionSpeed);
 			UE_LOG(LogTemp, Warning, TEXT("Switched to Animal %s Camera"), *TargetAnimal->GetName());
+
+			OnSwitchToAnimalCam.Broadcast();
 		}
 	}
 }

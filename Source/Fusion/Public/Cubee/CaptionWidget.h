@@ -69,7 +69,7 @@ protected:
 
 	FTimerHandle TypingTimerHandle;
 
-	void PrintStart(const FString& NewText);
+	void PrintStart(UTextBlock* _TextBlock, const FString& NewText);
 	void TypeNextCharacter(UTextBlock* _TextBlock);
 	void InitializeTextBlock(UTextBlock* _TextBlock);
 
@@ -85,7 +85,7 @@ public:
 	FOnSlideOutFinished OnSlideOutFinished;
 	
 	UFUNCTION(BlueprintCallable)
-	void EnterCaption();
+	void EnterCaption(const FString& Q, const FString& A);
 
 	UFUNCTION(BlueprintCallable)
 	void ExitCaption();

@@ -7,6 +7,9 @@
 
 class AAnimalActor;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchToMainCam);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchToAnimalCam);
+
 UCLASS()
 class FUSION_API ACameraManager : public AActor
 {
@@ -45,4 +48,13 @@ public:
 
 private:
 	void SetActiveCamera(UCameraComponent* NewCamera, bool bUseBlend = true, float CustomSpeed = -1.0f);
+
+public:
+	// delegates
+	UPROPERTY(BlueprintAssignable)
+	FOnSwitchToMainCam OnSwitchToMainCam;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSwitchToAnimalCam OnSwitchToAnimalCam;
+
 };

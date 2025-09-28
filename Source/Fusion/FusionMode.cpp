@@ -442,13 +442,15 @@ void AFusionMode::OnVoiceQueryComplete(FHttpRequestPtr Request, FHttpResponsePtr
     const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseStr);
     if (FJsonSerializer::Deserialize(Reader, JsonPayload) && JsonPayload.IsValid())
     {
-        FString Transcript;
-        JsonPayload->TryGetStringField(TEXT("transcript"), Transcript);
+        FString Q;
+        JsonPayload->TryGetStringField(TEXT("user_question"), Q);
 
-        FString TtsUrl;
-        JsonPayload->TryGetStringField(TEXT("tts_url"), TtsUrl);
+        FString A;
+        JsonPayload->TryGetStringField(TEXT("llm_result"), A);
 
-        BroadcastVoiceAnswerToUI(Transcript, TtsUrl);
+        LogOnScreen(ELogVerbosity::Log, TEXT("Q: %s / A : %s"), *Q, *A);
+ 
+        BroadcastVoiceAnswerToUI(Q, A);
     }
 }
 
@@ -458,10 +460,10 @@ void AFusionMode::BroadcastDescriptionToUI(const FString& ObjectId, const FStrin
     OnObjectDescriptionReceived.Broadcast(ObjectId, Description, TtsUrl);
 }
 
-void AFusionMode::BroadcastVoiceAnswerToUI(const FString& Transcript, const FString& TtsUrl)
+void AFusionMode::BroadcastVoiceAnswerToUI(const FString& Q, const FString& A)
 {
     LogOnScreen(ELogVerbosity::Log, TEXT("Broadcasting voice answer"));
-    OnVoiceAnswerReceived.Broadcast(Transcript, TtsUrl);
+    OnVoiceAnswerReceived.Broadcast(Q, A);
 }
 
 void AFusionMode::BroadcastBackToUI()
