@@ -9,6 +9,8 @@
 #include "Framework/Application/SlateApplication.h"
 #include "HandViewportMapperComponent.h"
 
+#include "InputActionValue.h"
+#include "InteractableWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
@@ -16,6 +18,8 @@
 #include "Widgets/SWindow.h"
 #include "Slate/SObjectWidget.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Huxley/CameraManager.h"
+#include "Huxley/FusionPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHandViewportMapper, Log, All);
@@ -50,6 +54,16 @@ void UHandViewportMapperComponent::BeginPlay()
 		if (FM)
 		{
 			FM->OnGestureFrameReceived.AddDynamic(this, &UHandViewportMapperComponent::HandleGestureFrame);
+		}
+	}
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PC)
+	{
+		AFusionPlayerController* FPC = Cast<AFusionPlayerController>(PC);
+		if (FPC)
+		{
+			FPC->OnMouseClicked.AddDynamic(this, &UHandViewportMapperComponent::OnClick);
 		}
 	}
 }
@@ -135,8 +149,6 @@ bool UHandViewportMapperComponent::MapDirectionToViewport(const FFusionHandSnaps
 
 bool UHandViewportMapperComponent::FindWidgetAlongDirection(const FFusionHandSnapshot& Hand, int32 StartLandmarkId, int32 EndLandmarkId, float MaxDistance, FFusionWidgetHitResult& OutHitResult) const
 {
-	OutHitResult = FFusionWidgetHitResult();
-
 	FVector2D Origin;
 	FVector2D Direction;
 	if (!MapDirectionToViewport(Hand, StartLandmarkId, EndLandmarkId, Origin, Direction))
@@ -164,15 +176,18 @@ bool UHandViewportMapperComponent::FindWidgetAlongDirection(const FFusionHandSna
 		FFusionWidgetHitResult HitResult;
 		if (HitTestWidgetAt(SamplePoint, HitResult))
 		{
+			if (HitResult.Widget != OutHitResult.Widget)
+			{
+				OnSelect(false);
+			}
 			OutHitResult = HitResult;
-			const FString WidgetLabel = OutHitResult.Widget
-				? OutHitResult.Widget->GetName()
-				: OutHitResult.WidgetTag != NAME_None ? OutHitResult.WidgetTag.ToString() : FString(TEXT("Unknown"));
+			OnSelect(true);
+			const FString WidgetLabel = OutHitResult.Widget->GetName();
 			UE_LOG(LogHandViewportMapper, Log, TEXT("Widget hit: %s at %s"), *WidgetLabel, *OutHitResult.ViewportPosition.ToString());
 			return true;
 		}
 	}
-
+	OnSelect(false);
 	return false;
 }
 
@@ -434,6 +449,10 @@ FVector2D* UHandViewportMapperComponent::ResolveCorner(FFusionScreenQuad& Quad, 
 
 void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSnapshot>& Hands)
 {
+	if (Hands.Num() <= 0)
+		return;
+
+	FingerLocation = FVector2D(Hands[0].Landmarks[8].Location.X, Hands[0].Landmarks[8].Location.Y);
 	switch (State)
 	{
 		case EFusionState::SetTopLeft:
@@ -453,6 +472,57 @@ void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSn
 		break;
 		case EFusionState::Description:
 		
+		break;
+	}
+}
+
+void UHandViewportMapperComponent::OnSelect(bool bIsSelecting) const
+{
+	UInteractableWidget* iw = Cast<UInteractableWidget>(WidgetHit.Widget);
+
+	if (iw)
+	{
+		iw->OnSelecting(bIsSelecting);
+	}
+}
+
+void UHandViewportMapperComponent::OnClick(const FInputActionValue& Value, ACameraManager* CameraRef)
+{
+	switch (State)
+	{
+		case EFusionState::SetTopLeft:
+			TargetQuad.TopLeft = FingerLocation;
+			State = EFusionState::SetTopRight;
+			break;
+		case EFusionState::SetTopRight:
+			TargetQuad.TopRight = FingerLocation;
+			State = EFusionState::SetBottomRight;
+			break;
+		case EFusionState::SetBottomRight:
+			TargetQuad.BottomRight = FingerLocation;
+			State = EFusionState::SetBottomLeft;
+			break;;
+		case EFusionState::SetBottomLeft:
+			TargetQuad.BottomLeft = FingerLocation;
+			State = EFusionState::World;
+			break;
+		case EFusionState::World:
+			{
+				UInteractableWidget* iw = Cast<UInteractableWidget>(WidgetHit.Widget);
+
+				if (iw)
+				{
+					AAnimalActor* aa = iw->OnInteract();
+
+					if (aa)
+					{
+						CameraRef->SwitchToAnimalCamera(aa);
+					}
+				}
+			}
+			break;
+		case EFusionState::Description:
+
 		break;
 	}
 }

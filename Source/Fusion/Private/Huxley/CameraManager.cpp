@@ -58,7 +58,7 @@ void ACameraManager::SwitchToAnimalCamera(AAnimalActor* TargetAnimal)
 		if (AnimalCamera && CurrentActiveCamera != AnimalCamera)
 		{
 			SetActiveCamera(AnimalCamera, true, AnimalCameraTransitionSpeed);
-			UE_LOG(LogTemp, Warning, TEXT("Switched to Animal Camera"));
+			UE_LOG(LogTemp, Warning, TEXT("Switched to Animal %s Camera"), *TargetAnimal->GetName());
 		}
 	}
 }

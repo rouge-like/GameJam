@@ -98,34 +98,35 @@ void AFusionPlayerController::HandleMouseMovement()
 
 void AFusionPlayerController::OnMouseClick(const FInputActionValue& Value)
 {
+	OnMouseClicked.Broadcast(Value, CameraManagerRef);
 	// 마우스 위치에서 직접 감지
-	AAnimalActor* ClickedAnimal = GetAnimalUnderCursor();
-
-	if (ClickedAnimal)
-	{
-		// 이전에 선택된 동물이 있다면 해제
-		if (CurrentSelectedAnimal && CurrentSelectedAnimal != ClickedAnimal)
-		{
-			CurrentSelectedAnimal->SetClickState(false);
-		}
-
-		CurrentSelectedAnimal = ClickedAnimal;
-		CurrentSelectedAnimal->SetClickState(true);
-
-		if (CameraManagerRef)
-		{
-			CameraManagerRef->SwitchToAnimalCamera(CurrentSelectedAnimal);
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Animal clicked and camera switched: %s"),
-			*CurrentSelectedAnimal->GetName());
-		
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No animal found under cursor"));
-		
-	}
+	// AAnimalActor* ClickedAnimal = GetAnimalUnderCursor();
+	//
+	// if (ClickedAnimal)
+	// {
+	// 	// 이전에 선택된 동물이 있다면 해제
+	// 	if (CurrentSelectedAnimal && CurrentSelectedAnimal != ClickedAnimal)
+	// 	{
+	// 		CurrentSelectedAnimal->SetClickState(false);
+	// 	}
+	//
+	// 	CurrentSelectedAnimal = ClickedAnimal;
+	// 	CurrentSelectedAnimal->SetClickState(true);
+	//
+	// 	if (CameraManagerRef)
+	// 	{
+	// 		CameraManagerRef->SwitchToAnimalCamera(CurrentSelectedAnimal);
+	// 	}
+	//
+	// 	UE_LOG(LogTemp, Warning, TEXT("Animal clicked and camera switched: %s"),
+	// 		*CurrentSelectedAnimal->GetName());
+	// 	
+	// }
+	// else
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("No animal found under cursor"));
+	// 	
+	// }
 }
 
 void AFusionPlayerController::OnCancelKey(const FInputActionValue& Value)
