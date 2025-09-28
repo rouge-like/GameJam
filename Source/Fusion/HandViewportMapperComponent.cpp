@@ -16,6 +16,7 @@
 #include "Widgets/SWindow.h"
 #include "Slate/SObjectWidget.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHandViewportMapper, Log, All);
 
@@ -39,6 +40,18 @@ void UHandViewportMapperComponent::BeginPlay()
 	}
 
 	RebuildHomography();
+
+	AGameModeBase* GM = UGameplayStatics::GetGameMode(GetWorld());
+
+	if (GM)
+	{
+		AFusionMode* FM = Cast<AFusionMode>(GM);
+
+		if (FM)
+		{
+			FM->OnGestureFrameReceived.AddDynamic(this, &UHandViewportMapperComponent::HandleGestureFrame);
+		}
+	}
 }
 
 void UHandViewportMapperComponent::SetSourceQuad(const FFusionScreenQuad& InQuad)
@@ -416,5 +429,30 @@ FVector2D* UHandViewportMapperComponent::ResolveCorner(FFusionScreenQuad& Quad, 
 		return &Quad.BottomLeft;
 	default:
 		return nullptr;
+	}
+}
+
+void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSnapshot>& Hands)
+{
+	switch (State)
+	{
+		case EFusionState::SetTopLeft:
+		
+		break;
+		case EFusionState::SetTopRight:
+		
+		break;
+		case EFusionState::SetBottomRight:
+		
+		break;;
+		case EFusionState::SetBottomLeft:
+		
+		break;
+		case EFusionState::World:
+		FindWidgetAlongDirection(Hands[0], 7,8,1920, WidgetHit);
+		break;
+		case EFusionState::Description:
+		
+		break;
 	}
 }

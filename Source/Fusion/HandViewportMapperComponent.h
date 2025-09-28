@@ -43,6 +43,16 @@ enum class EFusionScreenQuadCorner : uint8
 	BottomLeft
 };
 
+UENUM(BlueprintType)
+enum class EFusionState : uint8
+{
+	SetTopLeft,
+	SetTopRight,
+	SetBottomRight,
+	SetBottomLeft,
+	World,
+	Description
+};
 USTRUCT(BlueprintType)
 struct FFusionWidgetHitResult
 {
@@ -129,4 +139,11 @@ private:
 
 	double Homography[9];
 	bool bHasValidHomography;
+
+	EFusionState State;
+
+	UFUNCTION()
+	void HandleGestureFrame(const TArray<FFusionHandSnapshot>& Hands);
+
+	FFusionWidgetHitResult WidgetHit;
 };
