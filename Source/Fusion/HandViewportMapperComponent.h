@@ -117,6 +117,7 @@ private:
 	bool ComputeHomography(const TArray<FVector2D>& SourcePoints, const TArray<FVector2D>& TargetPoints);
 	bool SolveLinearSystem8x8(double A[8][8], double B[8], double X[8]) const;
 	bool ApplyHomography(const FVector2D& SourcePoint, FVector2D& OutViewportPoint) const;
+	bool TryGetLandmarkLocation(const FFusionHandSnapshot& Hand, int32 LandmarkId, FVector& OutWorldLocation) const;
 	bool TryExtractHandLandmark(const FFusionHandSnapshot& Hand, int32 LandmarkId, FVector2D& OutViewportPoint) const;
 	bool TryExtractUWidget(const TSharedPtr<SWidget>& SlateWidget, UWidget*& OutWidget) const;
 	bool HitTestWidgetAt(const FVector2D& ViewportPosition, FFusionWidgetHitResult& OutHitResult) const;

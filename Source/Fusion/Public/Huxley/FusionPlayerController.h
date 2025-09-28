@@ -51,4 +51,7 @@ private:
 	void OnCancelKey(const FInputActionValue& Value);
 
 	AAnimalActor* GetAnimalUnderCursor();
+
+public:
+	void OnSelectAction();
 };

@@ -29,13 +29,10 @@ struct FFusionHandSnapshot
     GENERATED_BODY()
 
     UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    FString Handedness;
-
+    TArray<float> x_y_z;
+    
     UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    float Score = 0.f;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    TArray<FFusionHandLandmark> Landmarks;
+    FString state;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnObjectDescriptionReceived, const FString&, ObjectId, const FString&, Description, const FString&, TtsUrl);

@@ -161,7 +161,6 @@ bool UHandViewportMapperComponent::FindWidgetAlongDirection(const FFusionHandSna
 	{
 		return false;
 	}
-
 	const float StepLength = FMath::Max(1.f, WidgetSearchStep);
 	const int32 StepCount = FMath::Max(1, WidgetSearchSamples > 0 ? WidgetSearchSamples : FMath::CeilToInt(MaxDistance / StepLength));
 	for (int32 StepIndex = 1; StepIndex <= StepCount; ++StepIndex)
@@ -183,11 +182,15 @@ bool UHandViewportMapperComponent::FindWidgetAlongDirection(const FFusionHandSna
 			OutHitResult = HitResult;
 			OnSelect(true);
 			const FString WidgetLabel = OutHitResult.Widget->GetName();
-			UE_LOG(LogHandViewportMapper, Log, TEXT("Widget hit: %s at %s"), *WidgetLabel, *OutHitResult.ViewportPosition.ToString());
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, WidgetLabel);
+			}
+			//UE_LOG(LogHandViewportMapper, Log, TEXT("Widget hit: %s at %s"), *WidgetLabel, *OutHitResult.ViewportPosition.ToString());
 			return true;
 		}
 	}
-	OnSelect(false);
+
 	return false;
 }
 
@@ -350,17 +353,38 @@ bool UHandViewportMapperComponent::ApplyHomography(const FVector2D& SourcePoint,
 	return true;
 }
 
-bool UHandViewportMapperComponent::TryExtractHandLandmark(const FFusionHandSnapshot& Hand, int32 LandmarkId, FVector2D& OutViewportPoint) const
+bool UHandViewportMapperComponent::TryGetLandmarkLocation(const FFusionHandSnapshot& Hand, int32 LandmarkId, FVector& OutWorldLocation) const
 {
-	for (const FFusionHandLandmark& Landmark : Hand.Landmarks)
+	static constexpr int32 ComponentsPerLandmark = 3;
+
+	if (LandmarkId < 0)
 	{
-		if (Landmark.Id == LandmarkId)
-		{
-			return MapPointToViewport(FVector2D(Landmark.Location.X, Landmark.Location.Y), OutViewportPoint);
-		}
+		return false;
 	}
 
-	return false;
+	const int32 BaseIndex = LandmarkId * ComponentsPerLandmark;
+	if (!Hand.x_y_z.IsValidIndex(BaseIndex) || !Hand.x_y_z.IsValidIndex(BaseIndex + 1))
+	{
+		return false;
+	}
+
+	const float X = Hand.x_y_z[BaseIndex];
+	const float Y = Hand.x_y_z[BaseIndex + 1];
+	const float Z = Hand.x_y_z.IsValidIndex(BaseIndex + 2) ? Hand.x_y_z[BaseIndex + 2] : 0.f;
+
+	OutWorldLocation = FVector(X, Y, Z);
+	return true;
+}
+
+bool UHandViewportMapperComponent::TryExtractHandLandmark(const FFusionHandSnapshot& Hand, int32 LandmarkId, FVector2D& OutViewportPoint) const
+{
+	FVector WorldLocation;
+	if (!TryGetLandmarkLocation(Hand, LandmarkId, WorldLocation))
+	{
+		return false;
+	}
+
+	return MapPointToViewport(FVector2D(WorldLocation.X, WorldLocation.Y), OutViewportPoint);
 }
 
 bool UHandViewportMapperComponent::TryExtractUWidget(const TSharedPtr<SWidget>& SlateWidget, UWidget*& OutWidget) const
@@ -452,7 +476,28 @@ void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSn
 	if (Hands.Num() <= 0)
 		return;
 
-	FingerLocation = FVector2D(Hands[0].Landmarks[8].Location.X, Hands[0].Landmarks[8].Location.Y);
+	FVector IndexFingerTip;
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Hands[0].state);
+	}
+	if (Hands[0].state.Equals("select"))
+	{
+		APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		if (PC)
+		{
+			AFusionPlayerController* FPC = Cast<AFusionPlayerController>(PC);
+			if (FPC)
+			{
+				FPC->OnSelectAction();
+			}
+		}
+		return;
+	}
+	if (TryGetLandmarkLocation(Hands[0], 8, IndexFingerTip))
+	{
+		FingerLocation = FVector2D(IndexFingerTip.X, IndexFingerTip.Y);
+	}
 	switch (State)
 	{
 		case EFusionState::SetTopLeft:
