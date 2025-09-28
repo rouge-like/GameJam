@@ -26,11 +26,11 @@ void UInteractableWidget::OnSelecting(bool bIsSelecting)
 	}
 }
 
-AAnimalActor* UInteractableWidget::OnInteract()
+AAnimalActor* UInteractableWidget::OnInteract(bool bIsInteract)
 {
 	if (Animal)
 	{
-		Animal->SetClickState(true);
+		Animal->SetClickState(bIsInteract);
 	}
 
 	return Animal;

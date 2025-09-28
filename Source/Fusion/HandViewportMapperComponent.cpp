@@ -182,10 +182,6 @@ bool UHandViewportMapperComponent::FindWidgetAlongDirection(const FFusionHandSna
 			OutHitResult = HitResult;
 			OnSelect(true);
 			const FString WidgetLabel = OutHitResult.Widget->GetName();
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, WidgetLabel);
-			}
 			//UE_LOG(LogHandViewportMapper, Log, TEXT("Widget hit: %s at %s"), *WidgetLabel, *OutHitResult.ViewportPosition.ToString());
 			return true;
 		}
@@ -479,7 +475,7 @@ void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSn
 	FVector IndexFingerTip;
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Hands[0].state);
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, Hands[0].state);
 	}
 	if (Hands[0].state.Equals("select"))
 	{
@@ -490,9 +486,33 @@ void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSn
 			if (FPC)
 			{
 				FPC->OnSelectAction();
+				State = EFusionState::Description;
 			}
 		}
 		return;
+	}
+	if (Hands[0].state.Equals("stop"))
+	{
+		if (State == EFusionState::Description)
+		{
+			APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+			if (PC)
+			{
+				AFusionPlayerController* FPC = Cast<AFusionPlayerController>(PC);
+				if (FPC)
+				{
+					FPC->OnStopAction();
+					UInteractableWidget* iw = Cast<UInteractableWidget>(WidgetHit.Widget);
+
+					if (iw)
+					{
+						AAnimalActor* aa = iw->OnInteract(false);
+						State = EFusionState::World;
+					}
+				}
+			}
+			return;
+		}
 	}
 	if (TryGetLandmarkLocation(Hands[0], 8, IndexFingerTip))
 	{
@@ -508,7 +528,7 @@ void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSn
 		break;
 		case EFusionState::SetBottomRight:
 		
-		break;;
+		break;
 		case EFusionState::SetBottomLeft:
 		
 		break;
@@ -531,7 +551,7 @@ void UHandViewportMapperComponent::OnSelect(bool bIsSelecting) const
 	}
 }
 
-void UHandViewportMapperComponent::OnClick(const FInputActionValue& Value, ACameraManager* CameraRef)
+void UHandViewportMapperComponent::OnClick(ACameraManager* CameraRef)
 {
 	switch (State)
 	{
@@ -557,7 +577,7 @@ void UHandViewportMapperComponent::OnClick(const FInputActionValue& Value, ACame
 
 				if (iw)
 				{
-					AAnimalActor* aa = iw->OnInteract();
+					AAnimalActor* aa = iw->OnInteract(true);
 
 					if (aa)
 					{

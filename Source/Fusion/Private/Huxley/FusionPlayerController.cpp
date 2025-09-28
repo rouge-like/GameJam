@@ -98,7 +98,7 @@ void AFusionPlayerController::HandleMouseMovement()
 
 void AFusionPlayerController::OnMouseClick(const FInputActionValue& Value)
 {
-	OnMouseClicked.Broadcast(Value, CameraManagerRef);
+	OnMouseClicked.Broadcast(CameraManagerRef);
 	// 마우스 위치에서 직접 감지
 	AAnimalActor* ClickedAnimal = GetAnimalUnderCursor();
 	
@@ -188,6 +188,13 @@ AAnimalActor* AFusionPlayerController::GetAnimalUnderCursor()
 
 void AFusionPlayerController::OnSelectAction()
 {
-	FInputActionValue value;
-	OnMouseClicked.Broadcast(value, CameraManagerRef);
+	OnMouseClicked.Broadcast(CameraManagerRef);
+}
+
+void AFusionPlayerController::OnStopAction()
+{
+	if (CameraManagerRef)
+	{
+		CameraManagerRef->SwitchToMainCameraSmooth(); // 부드러운 전환 사용
+	}
 }
