@@ -137,7 +137,7 @@ void AFusionMode::HandleWebSocketConnectionError(const FString& Error)
 
 void AFusionMode::HandleWebSocketMessage(const FString& Message)
 {
-    LogOnScreen(ELogVerbosity::Verbose, TEXT("Gesture message received: %s"), *Message);
+    // LogOnScreen(ELogVerbosity::Verbose, TEXT("Gesture message received: %s"), *Message);
     OnGesturePayloadReceived.Broadcast(Message);
 
     TSharedPtr<FJsonObject> JsonPayload;
@@ -146,11 +146,9 @@ void AFusionMode::HandleWebSocketMessage(const FString& Message)
     {
         return;
     }
-
     TArray<FFusionHandSnapshot> ParsedHands;
     PopulateHandsFromJson(JsonPayload, ParsedHands);
     OnGestureFrameReceived.Broadcast(ParsedHands);
-
     // if (ParsedHands.Num() > 0)
     // {
     //     FFusionWidgetHitResult HitResult;
@@ -242,57 +240,96 @@ void AFusionMode::PopulateHandsFromJson(const TSharedPtr<FJsonObject>& JsonPaylo
         return;
     }
 
+    TArray<TSharedPtr<FJsonObject>> HandObjects;
+
     const TArray<TSharedPtr<FJsonValue>>* HandsArray = nullptr;
-    if (!JsonPayload->TryGetArrayField(TEXT("hands"), HandsArray) || HandsArray == nullptr)
+    if (JsonPayload->TryGetArrayField(TEXT("hands"), HandsArray) && HandsArray)
+    {
+        for (const TSharedPtr<FJsonValue>& HandValue : *HandsArray)
+        {
+            const TSharedPtr<FJsonObject> HandObject = HandValue.IsValid() ? HandValue->AsObject() : nullptr;
+            if (HandObject.IsValid())
+            {
+                HandObjects.Add(HandObject);
+            }
+        }
+    }
+    else
+    {
+        TSharedPtr<FJsonObject> SingleHandObject;
+        if (JsonPayload->HasTypedField<EJson::Object>(TEXT("hand")))
+        {
+            SingleHandObject = JsonPayload->GetObjectField(TEXT("hand"));
+        }
+        else if (JsonPayload->HasField(TEXT("x_y_z")) || JsonPayload->HasField(TEXT("state")))
+        {
+            SingleHandObject = JsonPayload;
+        }
+
+        if (SingleHandObject.IsValid())
+        {
+            HandObjects.Add(SingleHandObject);
+        }
+    }
+
+    if (HandObjects.Num() == 0)
     {
         return;
     }
 
-    for (const TSharedPtr<FJsonValue>& HandValue : *HandsArray)
+    OutHands.Reserve(HandObjects.Num());
+
+    for (const TSharedPtr<FJsonObject>& HandObject : HandObjects)
     {
-        const TSharedPtr<FJsonObject> HandObject = HandValue.IsValid() ? HandValue->AsObject() : nullptr;
         if (!HandObject.IsValid())
         {
             continue;
         }
 
         FFusionHandSnapshot HandSnapshot;
-        HandObject->TryGetStringField(TEXT("handedness"), HandSnapshot.Handedness);
-
-        double ScoreValue = 0.0;
-        if (HandObject->TryGetNumberField(TEXT("score"), ScoreValue))
+        FString ParsedState;
+        if (HandObject->TryGetStringField(TEXT("state"), ParsedState)
+            || HandObject->TryGetStringField(TEXT("hand_state"), ParsedState)
+            || HandObject->TryGetStringField(TEXT("gesture"), ParsedState))
         {
-            HandSnapshot.Score = static_cast<float>(ScoreValue);
+            HandSnapshot.state = ParsedState;
+        }
+        else
+        {
+            HandSnapshot.state.Reset();
         }
 
-        const TArray<TSharedPtr<FJsonValue>>* LandmarksArray = nullptr;
-        if (HandObject->TryGetArrayField(TEXT("landmarks"), LandmarksArray) && LandmarksArray)
+        const TArray<TSharedPtr<FJsonValue>>* CoordinatesArray = nullptr;
+        if (HandObject->TryGetArrayField(TEXT("x_y_z"), CoordinatesArray) && CoordinatesArray)
         {
-            HandSnapshot.Landmarks.Reserve(LandmarksArray->Num());
-            for (const TSharedPtr<FJsonValue>& LandmarkValue : *LandmarksArray)
+            HandSnapshot.x_y_z.Reset(CoordinatesArray->Num());
+            HandSnapshot.x_y_z.Reserve(CoordinatesArray->Num());
+            for (const TSharedPtr<FJsonValue>& CoordinateValue : *CoordinatesArray)
             {
-                const TSharedPtr<FJsonObject> LandmarkObject = LandmarkValue.IsValid() ? LandmarkValue->AsObject() : nullptr;
-                if (!LandmarkObject.IsValid())
+                if (!CoordinateValue.IsValid())
                 {
                     continue;
                 }
 
-                FFusionHandLandmark Landmark;
-                double IdNumber = 0.0;
-                if (LandmarkObject->TryGetNumberField(TEXT("id"), IdNumber))
+                double CoordinateNumber = 0.0;
+                if (CoordinateValue->TryGetNumber(CoordinateNumber))
                 {
-                    Landmark.Id = static_cast<int32>(IdNumber);
+                    HandSnapshot.x_y_z.Add(static_cast<float>(CoordinateNumber));
+                    continue;
                 }
 
-                double X = 0.0;
-                double Y = 0.0;
-                double Z = 0.0;
-                LandmarkObject->TryGetNumberField(TEXT("x"), X);
-                LandmarkObject->TryGetNumberField(TEXT("y"), Y);
-                LandmarkObject->TryGetNumberField(TEXT("z"), Z);
-
-                Landmark.Location = FVector(static_cast<float>(X), static_cast<float>(Y), static_cast<float>(Z));
-                HandSnapshot.Landmarks.Add(MoveTemp(Landmark));
+                const TArray<TSharedPtr<FJsonValue>>* NestedArray = nullptr;
+                if (CoordinateValue->TryGetArray(NestedArray) && NestedArray)
+                {
+                    for (const TSharedPtr<FJsonValue>& NestedValue : *NestedArray)
+                    {
+                        double NestedNumber = 0.0;
+                        if (NestedValue.IsValid() && NestedValue->TryGetNumber(NestedNumber))
+                        {
+                            HandSnapshot.x_y_z.Add(static_cast<float>(NestedNumber));
+                        }
+                    }
+                }
             }
         }
 

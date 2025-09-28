@@ -185,3 +185,9 @@ AAnimalActor* AFusionPlayerController::GetAnimalUnderCursor()
 	UE_LOG(LogTemp, Log, TEXT("No hit result"));
 	return nullptr;
 }
+
+void AFusionPlayerController::OnSelectAction()
+{
+	FInputActionValue value;
+	OnMouseClicked.Broadcast(value, CameraManagerRef);
+}
