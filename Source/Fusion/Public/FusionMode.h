@@ -7,44 +7,41 @@
 #include "FusionMode.generated.h"
 
 class IWebSocket;
+class FJsonObject;
+class FJsonValue;
+class UHandViewportMapperComponent;
 
 USTRUCT(BlueprintType)
-struct FFusionGestureFrame
+struct FFusionHandLandmark
 {
     GENERATED_BODY()
 
     UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    FString Gesture;
+    int32 Id = INDEX_NONE;
 
     UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    FString Hand;
+    FVector Location = FVector::ZeroVector;
+};
+
+USTRUCT(BlueprintType)
+struct FFusionHandSnapshot
+{
+    GENERATED_BODY()
 
     UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    FString ObjectHint;
+    FString Handedness;
 
     UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    float Confidence = 0.f;
+    float Score = 0.f;
 
     UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    FVector FingerTipWorld = FVector::ZeroVector;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    bool bHasWorldLocation = false;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    FVector2D FingerTipViewport = FVector2D::ZeroVector;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    bool bHasViewportLocation = false;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Fusion|Gestures")
-    FString RawJson;
+    TArray<FFusionHandLandmark> Landmarks;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnObjectDescriptionReceived, const FString&, ObjectId, const FString&, Description, const FString&, TtsUrl);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnVoiceAnswerReceived, const FString&, Transcript, const FString&, TtsUrl);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGesturePayloadReceived, const FString&, RawMessage);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGestureFrameReceived, const FFusionGestureFrame&, Frame);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGestureFrameReceived, const TArray<FFusionHandSnapshot>&, Hands);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBackRequested);
 
 /**
@@ -110,7 +107,7 @@ protected:
     void BroadcastVoiceAnswerToUI(const FString& Transcript, const FString& TtsUrl);
     void BroadcastBackToUI();
 
-    bool TryParseGestureFrame(const FString& Message, FFusionGestureFrame& OutFrame) const;
+    void PopulateHandsFromJson(const TSharedPtr<FJsonObject>& JsonPayload, TArray<FFusionHandSnapshot>& OutHands) const;
 
 protected:
     /** WebSocket URL supplying gesture frames and hand state. */
@@ -140,4 +137,7 @@ private:
 
     void LogOnScreen(ELogVerbosity::Type Verbosity, const TCHAR* Format, ...) const;
     FColor GetLogColor(ELogVerbosity::Type Verbosity) const;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Fusion|Mapping", meta = (AllowPrivateAccess = "true"))
+    UHandViewportMapperComponent* HandViewportMapper;
 };
