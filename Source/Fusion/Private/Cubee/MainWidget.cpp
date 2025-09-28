@@ -20,12 +20,12 @@ void UMainWidget::NativeConstruct()
 	}
 
 	/////////////// Test
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]
-	{
-		HideGuideText();
-		
-	}), 3.f, false);
+	//FTimerHandle TimerHandle;
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]
+	//{
+	//	HideGuideText();
+	//	
+	//}), 3.f, false);
 	//////////////
 }
 
