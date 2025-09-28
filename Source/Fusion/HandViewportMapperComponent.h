@@ -71,6 +71,8 @@ struct FFusionWidgetHitResult
 	FName WidgetTag = NAME_None;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStateChanged, EFusionState, State);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FUSION_API UHandViewportMapperComponent : public UActorComponent
 {
@@ -108,6 +110,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Fusion|Calibration")
 	void AutoSetTargetQuadFromViewport();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStateChanged OnStateChanged;
 
 protected:
 	virtual void BeginPlay() override;

@@ -471,11 +471,15 @@ void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSn
 {
 	if (Hands.Num() <= 0)
 		return;
-
+	if (Hands[0].x_y_z.Num() <= 0)
+		return;
+	
 	FVector IndexFingerTip;
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, Hands[0].state);
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, FString::Printf(TEXT("%f, %f, %f"), Hands[0].x_y_z[24],Hands[0].x_y_z[25],Hands[0].x_y_z[26]));
+		
 	}
 	if (Hands[0].state.Equals("select"))
 	{
@@ -486,7 +490,6 @@ void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSn
 			if (FPC)
 			{
 				FPC->OnSelectAction();
-				State = EFusionState::Description;
 			}
 		}
 		return;
@@ -508,6 +511,7 @@ void UHandViewportMapperComponent::HandleGestureFrame(const TArray<FFusionHandSn
 					{
 						AAnimalActor* aa = iw->OnInteract(false);
 						State = EFusionState::World;
+						OnStateChanged.Broadcast(State);
 					}
 				}
 			}
@@ -582,12 +586,17 @@ void UHandViewportMapperComponent::OnClick(ACameraManager* CameraRef)
 					if (aa)
 					{
 						CameraRef->SwitchToAnimalCamera(aa);
+
+						State = EFusionState::Description;
+						OnStateChanged.Broadcast(State);
 					}
 				}
 			}
 			break;
 		case EFusionState::Description:
-
+			{
+				
+			}
 		break;
 	}
 }

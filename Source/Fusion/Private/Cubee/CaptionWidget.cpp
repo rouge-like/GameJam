@@ -148,10 +148,10 @@ void UCaptionWidget::EnterCaption(const FString& Q, const FString& A)
 	//Txt_Q->SetText(FText::FromString(Q));
 	//Txt_A->SetText(FText::FromString(A));
 	
-	if (SlideIn)
-	{
-		PlayAnimation(SlideIn);
-	}
+	// if (SlideIn)
+	// {
+	// 	PlayAnimation(SlideIn);
+	// }
 }
 
 void UCaptionWidget::ExitCaption()
@@ -167,6 +167,14 @@ void UCaptionWidget::ExitCaption()
 void UCaptionWidget::HandleSlideOutFinished()
 {
 	OnSlideOutFinished.Broadcast();
+}
+
+void UCaptionWidget::PlaySlideInAnimation()
+{
+	if (SlideIn)
+	{
+		PlayAnimation(SlideIn);
+	}
 }
 
 

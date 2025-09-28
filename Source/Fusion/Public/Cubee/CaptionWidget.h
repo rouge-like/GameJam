@@ -93,6 +93,9 @@ public:
 	UFUNCTION()
 	void HandleSlideOutFinished();
 
+	UFUNCTION(BlueprintCallable)
+	void PlaySlideInAnimation();
+
 protected:
 	// 맵에서 동물 클릭하면 동물 이름 받아서
 	// {참치}에 대해 알아볼까요? 이렇게 뜨게 해야 함
