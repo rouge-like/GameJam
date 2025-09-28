@@ -1,4 +1,5 @@
 #include "Huxley/AnimalActor.h"
+#include "Huxley/AnimalAnimInstance.h"
 #include "Engine/Engine.h"
 
 AAnimalActor::AAnimalActor()
@@ -8,7 +9,7 @@ AAnimalActor::AAnimalActor()
 	AnimalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AnimalMesh"));
 	RootComponent = AnimalMesh;
 
-	OutlineMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OutlineMesh"));
+	OutlineMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("OutlineMesh"));
 	OutlineMesh->SetupAttachment(RootComponent);
 	OutlineMesh->SetVisibility(false);
 
@@ -63,30 +64,25 @@ void AAnimalActor::UpdateOutline()
 {
 	bool bShouldShowOutline = (CurrentState == EAnimalState::Hover || CurrentState == EAnimalState::Clicked);
 	OutlineMesh->SetVisibility(bShouldShowOutline);
-
-	if (GEngine && bShouldShowOutline)
-	{
-		FString StateString;
-		switch (CurrentState)
-		{
-		case EAnimalState::Hover:
-			StateString = TEXT("Hover");
-			break;
-		case EAnimalState::Clicked:
-			StateString = TEXT("Clicked");
-			break;
-		default:
-			StateString = TEXT("Idle");
-			break;
-		}
-
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green,
-			FString::Printf(TEXT("Current State: %s"), *StateString));
-	}
+	
 }
 
 void AAnimalActor::UpdateAnimationState()
 {
-	// 애니메이션 블루프린트에서 CurrentState를 참조하여 애니메이션 전환 처리
-	// Blueprint에서 구현할 예정
+	// AnimInstance가 매 프레임 CurrentState를 확인하여 자동으로 처리
+	// C++ AnimInstance에서 상태 동기화가 이루어짐
+
+	if (AnimalMesh && AnimalMesh->GetAnimInstance())
+	{
+		UE_LOG(LogTemp, Verbose, TEXT("Animation state updated: %d"), (int32)CurrentState);
+	}
+}
+
+UAnimalAnimInstance* AAnimalActor::GetAnimalAnimInstance() const
+{
+	if (AnimalMesh)
+	{
+		return Cast<UAnimalAnimInstance>(AnimalMesh->GetAnimInstance());
+	}
+	return nullptr;
 }

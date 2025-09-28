@@ -8,7 +8,7 @@
 class AAnimalActor;
 
 UCLASS()
-class GAMEJAM_API ACameraManager : public AActor
+class FUSION_API ACameraManager : public AActor
 {
 	GENERATED_BODY()
 
@@ -21,8 +21,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* MainCamera;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Camera")
-	float CameraTransitionSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Settings")
+	float AnimalCameraTransitionSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Settings")
+	float MainCameraTransitionSpeed;
 
 	UPROPERTY()
 	UCameraComponent* CurrentActiveCamera;
@@ -35,8 +38,11 @@ public:
 	void SwitchToMainCamera();
 
 	UFUNCTION(BlueprintCallable)
+	void SwitchToMainCameraSmooth();
+
+	UFUNCTION(BlueprintCallable)
 	void SwitchToAnimalCamera(AAnimalActor* TargetAnimal);
 
 private:
-	void SetActiveCamera(UCameraComponent* NewCamera);
+	void SetActiveCamera(UCameraComponent* NewCamera, bool bUseBlend = true, float CustomSpeed = -1.0f);
 };

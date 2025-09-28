@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "AnimalActor.generated.h"
 
+// EAnimalState enum 정의
 UENUM(BlueprintType)
 enum class EAnimalState : uint8
 {
@@ -16,7 +17,7 @@ enum class EAnimalState : uint8
 };
 
 UCLASS()
-class GAMEJAM_API AAnimalActor : public APawn
+class FUSION_API AAnimalActor : public APawn
 {
 	GENERATED_BODY()
 
@@ -30,7 +31,7 @@ protected:
 	USkeletalMeshComponent* AnimalMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* OutlineMesh;
+	USkeletalMeshComponent* OutlineMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* AnimalCamera;
@@ -48,7 +49,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UCameraComponent* GetAnimalCamera() const { return AnimalCamera; }
 
+	UFUNCTION(BlueprintCallable)
+	EAnimalState GetCurrentState() const { return CurrentState; }
+
 private:
 	void UpdateOutline();
 	void UpdateAnimationState();
+
+	// AnimInstance 헬퍼 함수들
+	class UAnimalAnimInstance* GetAnimalAnimInstance() const;
 };
