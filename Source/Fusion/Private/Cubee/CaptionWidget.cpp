@@ -23,7 +23,7 @@ void UCaptionWidget::NativeConstruct()
 		BindToAnimationFinished(SlideOut, EndEvent);
 	}
 
-	/*
+	
 	AGameModeBase* GM =UGameplayStatics::GetGameMode(GetWorld());
 	if (GM)
 	{
@@ -34,7 +34,7 @@ void UCaptionWidget::NativeConstruct()
 			FM->OnVoiceAnswerReceived.AddDynamic(this, &UCaptionWidget::EnterCaption);
 		}
 	}
-	*/
+	
 }
 
 bool UCaptionWidget::Initialize()
@@ -142,11 +142,11 @@ void UCaptionWidget::EnterCaption(const FString& Q, const FString& A)
 	Txt_Q->SetVisibility(ESlateVisibility::Visible);
 	Txt_A->SetVisibility(ESlateVisibility::Visible);
 
-	PrintStart(Txt_Q, Q);
-	PrintStart(Txt_A, A);
+	// PrintStart(Txt_Q, Q);
+	// PrintStart(Txt_A, A);
 	
-	//Txt_Q->SetText(FText::FromString(Q));
-	//Txt_A->SetText(FText::FromString(A));
+	Txt_Q->SetText(FText::FromString(Q));
+	Txt_A->SetText(FText::FromString(A));
 	
 	// if (SlideIn)
 	// {

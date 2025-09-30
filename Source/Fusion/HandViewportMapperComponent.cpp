@@ -175,15 +175,18 @@ bool UHandViewportMapperComponent::FindWidgetAlongDirection(const FFusionHandSna
 		FFusionWidgetHitResult HitResult;
 		if (HitTestWidgetAt(SamplePoint, HitResult))
 		{
-			if (HitResult.Widget != OutHitResult.Widget)
+			if (Cast<UInteractableWidget>(HitResult.Widget))
 			{
-				OnSelect(false);
+				if (HitResult.Widget != OutHitResult.Widget)
+				{
+					OnSelect(false);
+				}
+				OutHitResult = HitResult;
+				OnSelect(true);
+				const FString WidgetLabel = OutHitResult.Widget->GetName();
+				//UE_LOG(LogHandViewportMapper, Log, TEXT("Widget hit: %s at %s"), *WidgetLabel, *OutHitResult.ViewportPosition.ToString());
+				return true;
 			}
-			OutHitResult = HitResult;
-			OnSelect(true);
-			const FString WidgetLabel = OutHitResult.Widget->GetName();
-			//UE_LOG(LogHandViewportMapper, Log, TEXT("Widget hit: %s at %s"), *WidgetLabel, *OutHitResult.ViewportPosition.ToString());
-			return true;
 		}
 	}
 
