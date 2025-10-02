@@ -161,6 +161,8 @@ void UCaptionWidget::ExitCaption()
 	if (SlideOut)
 	{
 		PlayAnimation(SlideOut);
+		Txt_Q->SetText(FText::FromString(""));
+		Txt_A->SetText(FText::FromString(""));
 	}
 }
 
